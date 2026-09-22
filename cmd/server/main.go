@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"github.com/artemSoko1ov/LifeOS-backend/internal/task"
 	"log"
 	"net/http"
 )
@@ -9,9 +9,9 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /api", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "OK")
-	})
+	taskHandler := task.NewHandler()
+
+	mux.HandleFunc("GET /api/tasks", taskHandler.GetTasks)
 
 	server := http.Server{
 		Addr:    ":8080",
