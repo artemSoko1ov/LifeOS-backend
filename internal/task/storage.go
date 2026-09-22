@@ -1,5 +1,5 @@
 package task
 
 type Storage struct {
-	tasks []Task
+	Tasks []Task
 }

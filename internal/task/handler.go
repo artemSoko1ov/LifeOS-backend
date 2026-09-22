@@ -1,7 +1,7 @@
 package task
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 )
 
@@ -16,5 +16,9 @@ func NewHandler(storage *Storage) *Handler {
 }
 
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, h.storage.tasks)
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(h.storage.Tasks); err != nil {
+		http.Error(w, "failed to encode tasks", http.StatusInternalServerError)
+	}
 }

@@ -9,7 +9,15 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
-	taskStorage := &task.Storage{}
+	taskStorage := &task.Storage{
+		Tasks: []task.Task{
+			{
+				ID:        "1",
+				Title:     "Изучить Go",
+				Completed: false,
+			},
+		},
+	}
 	taskHandler := task.NewHandler(taskStorage)
 
 	mux.HandleFunc("GET /api/tasks", taskHandler.GetTasks)
