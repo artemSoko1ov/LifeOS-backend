@@ -5,12 +5,16 @@ import (
 	"net/http"
 )
 
-type Handler struct{}
+type Handler struct {
+	storage *Storage
+}
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(storage *Storage) *Handler {
+	return &Handler{
+		storage: storage,
+	}
 }
 
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "[]")
+	fmt.Fprintln(w, h.storage.tasks)
 }
