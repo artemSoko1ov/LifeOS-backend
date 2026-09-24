@@ -21,6 +21,7 @@ func main() {
 	taskHandler := task.NewHandler(taskStorage)
 
 	mux.HandleFunc("GET /api/tasks", taskHandler.GetTasks)
+	mux.HandleFunc("POST /api/tasks", taskHandler.CreateTask)
 
 	server := http.Server{
 		Addr:    ":8080",
