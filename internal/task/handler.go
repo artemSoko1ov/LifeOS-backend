@@ -2,29 +2,29 @@ package task
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
 	"net/http"
-	"time"
 )
 
 type Handler struct {
-	storage *Storage
+	service *Service
 }
 
 type CreateTaskRequest struct {
 	Title string `json:"title"`
 }
 
-func NewHandler(storage *Storage) *Handler {
+func NewHandler(service *Service) *Handler {
 	return &Handler{
-		storage: storage,
+		service: service,
 	}
 }
 
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if err := json.NewEncoder(w).Encode(h.storage.Tasks); err != nil {
+	tasks := h.service.GetTasks()
+
+	if err := json.NewEncoder(w).Encode(tasks); err != nil {
 		http.Error(w, "failed to encode tasks", http.StatusInternalServerError)
 	}
 }
@@ -39,20 +39,10 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	title := data.Title
-	now := time.Now()
-
-	newTask := Task{
-		ID:        uuid.NewString(),
-		Title:     title,
-		Completed: false,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-
-	h.storage.Tasks = append(h.storage.Tasks, newTask)
+	newTask := h.service.CreateTask(data.Title)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(newTask)
 }
