@@ -14,6 +14,8 @@ func (r *Repository) Get() []Task {
 	return r.storage.Tasks
 }
 
-func (r *Repository) Create(task Task) {
+func (r *Repository) Create(task Task) error {
 	r.storage.Tasks = append(r.storage.Tasks, task)
+
+	return nil
 }

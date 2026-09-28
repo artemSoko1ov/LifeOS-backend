@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/artemSoko1ov/LifeOS-backend/internal/task"
 	"log"
 	"net/http"
+
+	"github.com/artemSoko1ov/LifeOS-backend/internal/task"
 )
 
 func enableCORS(next http.Handler) http.Handler {

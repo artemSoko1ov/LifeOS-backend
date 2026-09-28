@@ -1,8 +1,11 @@
 package task
 
 import (
-	"github.com/google/uuid"
+	"errors"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -19,7 +22,11 @@ func (s *Service) GetTasks() []Task {
 	return s.repository.Get()
 }
 
-func (s *Service) CreateTask(title string) Task {
+func (s *Service) CreateTask(title string) (Task, error) {
+	if strings.TrimSpace(title) == "" {
+		return Task{}, errors.New("title is empty")
+	}
+
 	now := time.Now()
 
 	newTask := Task{
@@ -30,7 +37,9 @@ func (s *Service) CreateTask(title string) Task {
 		UpdatedAt: now,
 	}
 
-	s.repository.Create(newTask)
+	if err := s.repository.Create(newTask); err != nil {
+		return Task{}, err
+	}
 
-	return newTask
+	return newTask, nil
 }
