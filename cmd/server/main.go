@@ -25,7 +25,9 @@ func enableCORS(next http.Handler) http.Handler {
 func main() {
 	mux := http.NewServeMux()
 
-	taskStorage := &task.Storage{}
+	taskStorage := &task.Storage{
+		Tasks: []task.Task{},
+	}
 	taskRepository := task.NewRepository(taskStorage)
 	taskService := task.NewService(taskRepository)
 	taskHandler := task.NewHandler(taskService)
