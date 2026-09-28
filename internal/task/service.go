@@ -6,17 +6,17 @@ import (
 )
 
 type Service struct {
-	storage *Storage
+	repository *Repository
 }
 
-func NewService(storage *Storage) *Service {
+func NewService(repository *Repository) *Service {
 	return &Service{
-		storage: storage,
+		repository: repository,
 	}
 }
 
 func (s *Service) GetTasks() []Task {
-	return s.storage.Tasks
+	return s.repository.Get()
 }
 
 func (s *Service) CreateTask(title string) Task {
@@ -30,7 +30,7 @@ func (s *Service) CreateTask(title string) Task {
 		UpdatedAt: now,
 	}
 
-	s.storage.Tasks = append(s.storage.Tasks, newTask)
+	s.repository.Create(newTask)
 
 	return newTask
 }

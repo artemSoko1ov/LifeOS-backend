@@ -25,7 +25,8 @@ func main() {
 	mux := http.NewServeMux()
 
 	taskStorage := &task.Storage{}
-	taskService := task.NewService(taskStorage)
+	taskRepository := task.NewRepository(taskStorage)
+	taskService := task.NewService(taskRepository)
 	taskHandler := task.NewHandler(taskService)
 
 	mux.HandleFunc("GET /api/tasks", taskHandler.GetTasks)
