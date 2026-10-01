@@ -1,10 +1,9 @@
 package main
 
 import (
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
-
-	"github.com/joho/godotenv"
 
 	"github.com/artemSoko1ov/LifeOS-backend/internal/database"
 	"github.com/artemSoko1ov/LifeOS-backend/internal/task"
@@ -40,11 +39,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	taskStorage := &task.Storage{
-		Tasks: []task.Task{},
-	}
-
-	taskRepository := task.NewRepository(taskStorage)
+	taskRepository := task.NewRepository(db)
 	taskService := task.NewService(taskRepository)
 	taskHandler := task.NewHandler(taskService)
 

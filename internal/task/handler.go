@@ -22,7 +22,12 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	tasks := h.service.GetTasks()
+	tasks, err := h.service.GetTasks(r.Context())
+
+	if err != nil {
+		http.Error(w, "failed to get tasks", http.StatusInternalServerError)
+		return
+	}
 
 	if err := json.NewEncoder(w).Encode(tasks); err != nil {
 		http.Error(w, "failed to encode tasks", http.StatusInternalServerError)
@@ -39,7 +44,7 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newTask, err := h.service.CreateTask(data.Title)
+	newTask, err := h.service.CreateTask(r.Context(), data.Title)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

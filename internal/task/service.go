@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"time"
@@ -18,11 +19,11 @@ func NewService(repository *Repository) *Service {
 	}
 }
 
-func (s *Service) GetTasks() []Task {
-	return s.repository.Get()
+func (s *Service) GetTasks(ctx context.Context) ([]Task, error) {
+	return s.repository.Get(ctx)
 }
 
-func (s *Service) CreateTask(title string) (Task, error) {
+func (s *Service) CreateTask(ctx context.Context, title string) (Task, error) {
 	if strings.TrimSpace(title) == "" {
 		return Task{}, errors.New("title is empty")
 	}
@@ -37,7 +38,7 @@ func (s *Service) CreateTask(title string) (Task, error) {
 		UpdatedAt: now,
 	}
 
-	if err := s.repository.Create(newTask); err != nil {
+	if err := s.repository.Create(ctx, newTask); err != nil {
 		return Task{}, err
 	}
 
