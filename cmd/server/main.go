@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/joho/godotenv"
+
+	"github.com/artemSoko1ov/LifeOS-backend/internal/database"
 	"github.com/artemSoko1ov/LifeOS-backend/internal/task"
 )
 
@@ -23,11 +26,24 @@ func enableCORS(next http.Handler) http.Handler {
 }
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("error loading .env")
+	}
+
+	db, err := database.NewPostgres()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	log.Println("database connected")
+
 	mux := http.NewServeMux()
 
 	taskStorage := &task.Storage{
 		Tasks: []task.Task{},
 	}
+
 	taskRepository := task.NewRepository(taskStorage)
 	taskService := task.NewService(taskRepository)
 	taskHandler := task.NewHandler(taskService)
