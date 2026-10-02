@@ -45,6 +45,7 @@ func main() {
 
 	mux.HandleFunc("GET /api/tasks", taskHandler.GetTasks)
 	mux.HandleFunc("POST /api/tasks", taskHandler.CreateTask)
+	mux.HandleFunc("GET /api/tasks/{id}", taskHandler.GetTaskById)
 
 	server := http.Server{
 		Addr:    ":8080",

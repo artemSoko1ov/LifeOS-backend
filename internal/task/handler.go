@@ -2,8 +2,8 @@ package task
 
 import (
 	"encoding/json"
-	"net/http"
 	"errors"
+	"net/http"
 )
 
 type Handler struct {
@@ -47,18 +47,33 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	newTask, err := h.service.CreateTask(r.Context(), data.Title)
 
-if err != nil {
-	if errors.Is(err, ErrEmptyTitle) {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err != nil {
+		if errors.Is(err, ErrEmptyTitle) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-
-	http.Error(w, "internal server error", http.StatusInternalServerError)
-	return
-}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(newTask)
+}
+
+func (h *Handler) GetTaskById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	task, err := h.service.GetTaskById(r.Context(), r.PathValue("id"))
+
+	if err != nil {
+		http.Error(w, "failed to get task", http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(task); err != nil {
+		http.Error(w, "failed to encode task", http.StatusInternalServerError)
+	}
 }

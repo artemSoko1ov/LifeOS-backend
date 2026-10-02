@@ -73,3 +73,25 @@ func (r *Repository) Create(ctx context.Context, task Task) error {
 
 	return err
 }
+
+func (r *Repository) GetById(ctx context.Context, id string) (Task, error) {
+	var task Task
+
+	err := r.db.QueryRow(ctx, `
+		SELECT id, title, completed, created_at, updated_at
+		FROM tasks
+		WHERE id = $1
+	`, id).Scan(
+		&task.ID,
+		&task.Title,
+		&task.Completed,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+	)
+
+	if err != nil {
+		return Task{}, err
+	}
+
+	return task, nil
+}

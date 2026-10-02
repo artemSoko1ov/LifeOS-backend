@@ -46,3 +46,7 @@ func (s *Service) CreateTask(ctx context.Context, title string) (Task, error) {
 
 	return newTask, nil
 }
+
+func (s *Service) GetTaskById(ctx context.Context, id string) (Task, error) {
+	return s.repository.GetById(ctx, id)
+}
