@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -82,6 +83,32 @@ func (r *Repository) GetById(ctx context.Context, id string) (Task, error) {
 		FROM tasks
 		WHERE id = $1
 	`, id).Scan(
+		&task.ID,
+		&task.Title,
+		&task.Completed,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+	)
+
+	if err != nil {
+		return Task{}, err
+	}
+
+	return task, nil
+}
+
+func (r *Repository) Update(ctx context.Context, id string, data UpdateTaskRequest, newUpdatedAt time.Time) (Task, error) {
+	var task Task
+
+	err := r.db.QueryRow(ctx, `
+		UPDATE tasks
+		SET
+		title = COALESCE($2, title),
+		completed = COALESCE($3, completed),
+		updated_at = $4
+		WHERE id = $1
+		RETURNING id, title, completed, created_at, updated_at
+	`, id, data.Title, data.Completed, newUpdatedAt).Scan(
 		&task.ID,
 		&task.Title,
 		&task.Completed,

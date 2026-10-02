@@ -14,6 +14,11 @@ type CreateTaskRequest struct {
 	Title string `json:"title"`
 }
 
+type UpdateTaskRequest struct {
+	Title     *string `json:"title"`
+	Completed *bool   `json:"completed"`
+}
+
 func NewHandler(service *Service) *Handler {
 	return &Handler{
 		service: service,
@@ -76,4 +81,45 @@ func (h *Handler) GetTaskById(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(task); err != nil {
 		http.Error(w, "failed to encode task", http.StatusInternalServerError)
 	}
+}
+
+func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
+	var data UpdateTaskRequest
+
+	decoder := json.NewDecoder(r.Body)
+
+	if err := decoder.Decode(&data); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	updatedTask, err := h.service.UpdateTask(
+		r.Context(),
+		r.PathValue("id"),
+		data,
+	)
+	if err != nil {
+		if errors.Is(err, ErrEmptyTitle) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if errors.Is(err, ErrNothingToUpdate) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if errors.Is(err, ErrTaskNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(updatedTask)
 }
