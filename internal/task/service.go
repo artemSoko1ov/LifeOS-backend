@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var ErrEmptyTitle = errors.New("title is empty")
+
 type Service struct {
 	repository *Repository
 }
@@ -25,7 +27,7 @@ func (s *Service) GetTasks(ctx context.Context) ([]Task, error) {
 
 func (s *Service) CreateTask(ctx context.Context, title string) (Task, error) {
 	if strings.TrimSpace(title) == "" {
-		return Task{}, errors.New("title is empty")
+		return Task{}, ErrEmptyTitle
 	}
 
 	now := time.Now()

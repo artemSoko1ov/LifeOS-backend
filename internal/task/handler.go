@@ -3,6 +3,7 @@ package task
 import (
 	"encoding/json"
 	"net/http"
+	"errors"
 )
 
 type Handler struct {
@@ -46,10 +47,15 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	newTask, err := h.service.CreateTask(r.Context(), data.Title)
 
-	if err != nil {
+if err != nil {
+	if errors.Is(err, ErrEmptyTitle) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	http.Error(w, "internal server error", http.StatusInternalServerError)
+	return
+}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
