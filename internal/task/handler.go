@@ -123,3 +123,17 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(updatedTask)
 }
+
+func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
+	deletedTask, err := h.service.DeleteTask(r.Context(), r.PathValue("id"))
+
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(deletedTask)
+}

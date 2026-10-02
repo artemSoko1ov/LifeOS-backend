@@ -78,3 +78,13 @@ func (s *Service) UpdateTask(ctx context.Context, id string, data UpdateTaskRequ
 
 	return updatedTask, nil
 }
+
+func (s *Service) DeleteTask(ctx context.Context, id string) (Task, error) {
+	deletedTask, err := s.repository.Delete(ctx, id)
+
+	if err != nil {
+		return Task{}, err
+	}
+
+	return deletedTask, nil
+}

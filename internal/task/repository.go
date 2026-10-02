@@ -122,3 +122,25 @@ func (r *Repository) Update(ctx context.Context, id string, data UpdateTaskReque
 
 	return task, nil
 }
+
+func (r *Repository) Delete(ctx context.Context, id string) (Task, error) {
+	var task Task
+
+	err := r.db.QueryRow(ctx, `
+		DELETE FROM tasks
+		WHERE id = $1
+		RETURNING id, title, completed, created_at, updated_at
+	`, id).Scan(
+		&task.ID,
+		&task.Title,
+		&task.Completed,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+	)
+
+	if err != nil {
+		return Task{}, err
+	}
+
+	return task, nil
+}
