@@ -45,7 +45,7 @@ func main() {
 
 	mux.HandleFunc("GET /api/tasks", taskHandler.GetTasks)
 	mux.HandleFunc("POST /api/tasks", taskHandler.CreateTask)
-	mux.HandleFunc("GET /api/tasks/{id}", taskHandler.GetTaskById)
+	mux.HandleFunc("GET /api/tasks/{id}", taskHandler.GetTaskByID)
 	mux.HandleFunc("PATCH /api/tasks/{id}", taskHandler.UpdateTask)
 	mux.HandleFunc("DELETE /api/tasks/{id}", taskHandler.DeleteTask)
 

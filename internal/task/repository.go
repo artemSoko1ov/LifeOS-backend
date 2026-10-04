@@ -75,7 +75,7 @@ func (r *Repository) Create(ctx context.Context, task Task) error {
 	return err
 }
 
-func (r *Repository) GetById(ctx context.Context, id string) (Task, error) {
+func (r *Repository) GetByID(ctx context.Context, id string) (Task, error) {
 	var task Task
 
 	err := r.db.QueryRow(ctx, `

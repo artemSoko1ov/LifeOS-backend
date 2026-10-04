@@ -68,13 +68,18 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newTask)
 }
 
-func (h *Handler) GetTaskById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	task, err := h.service.GetTaskById(r.Context(), r.PathValue("id"))
+	task, err := h.service.GetTaskByID(r.Context(), r.PathValue("id"))
 
 	if err != nil {
-		http.Error(w, "failed to get task", http.StatusInternalServerError)
+		if errors.Is(err, ErrTaskNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -128,6 +133,11 @@ func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	deletedTask, err := h.service.DeleteTask(r.Context(), r.PathValue("id"))
 
 	if err != nil {
+		if errors.Is(err, ErrTaskNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}

@@ -11,7 +11,7 @@ import (
 )
 
 var ErrEmptyTitle = errors.New("title is empty")
-var ErrNothingToUpdate = errors.New("nothing to update.")
+var ErrNothingToUpdate = errors.New("nothing to update")
 var ErrTaskNotFound = errors.New("task not found")
 
 type Service struct {
@@ -50,8 +50,19 @@ func (s *Service) CreateTask(ctx context.Context, title string) (Task, error) {
 	return newTask, nil
 }
 
-func (s *Service) GetTaskById(ctx context.Context, id string) (Task, error) {
-	return s.repository.GetById(ctx, id)
+func (s *Service) GetTaskByID(ctx context.Context, id string) (Task, error) {
+	task, err := s.repository.GetByID(ctx, id)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Task{}, ErrTaskNotFound
+	}
+
+	if err != nil {
+		return Task{}, err
+	}
+
+	return task, nil
+
 }
 
 func (s *Service) UpdateTask(ctx context.Context, id string, data UpdateTaskRequest) (Task, error) {
@@ -81,6 +92,10 @@ func (s *Service) UpdateTask(ctx context.Context, id string, data UpdateTaskRequ
 
 func (s *Service) DeleteTask(ctx context.Context, id string) (Task, error) {
 	deletedTask, err := s.repository.Delete(ctx, id)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Task{}, ErrTaskNotFound
+	}
 
 	if err != nil {
 		return Task{}, err
