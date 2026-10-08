@@ -7,6 +7,7 @@ import (
 
 	"github.com/artemSoko1ov/LifeOS-backend/internal/database"
 	"github.com/artemSoko1ov/LifeOS-backend/internal/task"
+	"github.com/artemSoko1ov/LifeOS-backend/internal/user"
 )
 
 func enableCORS(next http.Handler) http.Handler {
@@ -48,6 +49,12 @@ func main() {
 	mux.HandleFunc("GET /api/tasks/{id}", taskHandler.GetTaskByID)
 	mux.HandleFunc("PATCH /api/tasks/{id}", taskHandler.UpdateTask)
 	mux.HandleFunc("DELETE /api/tasks/{id}", taskHandler.DeleteTask)
+
+	userRepository := user.NewRepository(db)
+	userService := user.NewService(userRepository)
+	userHandler := user.NewHandler(userService)
+
+	mux.HandleFunc("POST /api/auth/register", userHandler.CreateUser)
 
 	server := http.Server{
 		Addr:    ":8080",
