@@ -54,25 +54,33 @@ func (r *Repository) Get(ctx context.Context) ([]Task, error) {
 	return tasks, nil
 }
 
-func (r *Repository) Create(ctx context.Context, task Task) error {
-	_, err := r.db.Exec(ctx, `
+func (r *Repository) Create(ctx context.Context, task Task) (Task, error) {
+	err := r.db.QueryRow(ctx, `
 		INSERT INTO tasks (
-			id,
+			user_id,
 			title,
-			completed,
-			created_at,
-			updated_at
+			completed
 		)
-		VALUES ($1, $2, $3, $4, $5)
+		VALUES ($1, $2, $3)
+		RETURNING id, user_id, title, completed, created_at, updated_at
 	`,
-		task.ID,
+		task.UserID,
 		task.Title,
 		task.Completed,
-		task.CreatedAt,
-		task.UpdatedAt,
+	).Scan(
+		&task.ID,
+		&task.UserID,
+		&task.Title,
+		&task.Completed,
+		&task.CreatedAt,
+		&task.UpdatedAt,
 	)
 
-	return err
+	if err != nil {
+		return Task{}, err
+	}
+
+	return task, nil
 }
 
 func (r *Repository) GetByID(ctx context.Context, id string) (Task, error) {

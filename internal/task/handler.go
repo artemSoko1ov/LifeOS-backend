@@ -10,15 +10,6 @@ type Handler struct {
 	service *Service
 }
 
-type CreateTaskRequest struct {
-	Title string `json:"title"`
-}
-
-type UpdateTaskRequest struct {
-	Title     *string `json:"title"`
-	Completed *bool   `json:"completed"`
-}
-
 func NewHandler(service *Service) *Handler {
 	return &Handler{
 		service: service,

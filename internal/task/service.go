@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -33,21 +32,17 @@ func (s *Service) CreateTask(ctx context.Context, title string) (Task, error) {
 		return Task{}, ErrEmptyTitle
 	}
 
-	now := time.Now()
-
 	newTask := Task{
-		ID:        uuid.NewString(),
 		Title:     title,
 		Completed: false,
-		CreatedAt: now,
-		UpdatedAt: now,
 	}
 
-	if err := s.repository.Create(ctx, newTask); err != nil {
+	task, err := s.repository.Create(ctx, newTask)
+	if err != nil {
 		return Task{}, err
 	}
 
-	return newTask, nil
+	return task, nil
 }
 
 func (s *Service) GetTaskByID(ctx context.Context, id string) (Task, error) {
