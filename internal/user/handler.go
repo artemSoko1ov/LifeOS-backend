@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 )
 
@@ -26,14 +27,29 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newUser, err := h.service.CreateUser(r.Context(), data)
-
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		switch {
+		case errors.Is(err, ErrEmptyName),
+			errors.Is(err, ErrEmptyEmail),
+			errors.Is(err, ErrInvalidEmail),
+			errors.Is(err, ErrEmptyLogin),
+			errors.Is(err, ErrEmptyPassword):
+			http.Error(w, err.Error(), http.StatusBadRequest)
+
+		case errors.Is(err, ErrEmailAlreadyExists),
+			errors.Is(err, ErrLoginAlreadyExists):
+			http.Error(w, err.Error(), http.StatusConflict)
+
+		default:
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(newUser)
+	if err := json.NewEncoder(w).Encode(newUser); err != nil {
+		return
+	}
 }
